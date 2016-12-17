@@ -4,6 +4,7 @@ import java.util.*;
 
 import baikeClaw.Basic;
 import baikeClaw.Parse;
+import tools.PolyFW;
 import tools.TFIDF;
 
 public class FeatureWords {
@@ -21,7 +22,7 @@ public class FeatureWords {
 			break;
 		case 1:
 		case 2:
-//			generateBasicInfoFW();
+			returnPage.getBasicInfo();
 			break;
 		case 3:
 		case 4:
@@ -32,7 +33,6 @@ public class FeatureWords {
 			break;
 		}
 	}
-
 	
 	public List<PolyFW> getPolyFeaturenWords() {
 		return polyFeaturenWords;

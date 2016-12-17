@@ -19,6 +19,10 @@ import java.util.Random;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
+/*
+ * Get the HTMLPage and its status
+ */
+
 public class Claw {
 	private int status;// failed(-1),none(0),basicInfo(1), synonym(2), poly(3),list(4)
 	private String searchString;
@@ -32,7 +36,7 @@ public class Claw {
 	public final static String BASESEARCHURL = "http://baike.baidu.com/search/word?word=";
 	private static int clawCount = 4;
 
-	// 静态块，初始化客户端信心
+	// 静态块，初始化客户端信息
 	static {
 		try (InputStream fis = new FileInputStream("resources/user_agents");
 				InputStreamReader fisr = new InputStreamReader(fis, Charset.forName("UTF-8"));

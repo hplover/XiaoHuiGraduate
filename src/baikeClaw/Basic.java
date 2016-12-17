@@ -6,11 +6,12 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-
+/*
+ * extract info from a basicInfo page
+ */
 public class Basic{
 	List<String> labels=new ArrayList<>();
 	int editCount;
@@ -127,14 +128,6 @@ public class Basic{
 
 	@Override
 	public String toString(){
-		System.out.println("title:"+title);
-		System.out.println("labels:"+labels);
-		System.out.println("edit Count:"+editCount);
-		System.out.println("last date:"+lastEdit);
-		System.out.println("refer material:"+referMaterial);
-		System.out.println("descript text:"+descriptText);
-		System.out.println("inner link:"+innerLink);
-		System.out.println("================================");
-		return descriptText;
+		return "title:\n"+title+"\nlabels:\n"+labels+"\nedit Count:\n"+editCount+"\nlast date:\n"+lastEdit+"\nrefer material:\n"+referMaterial+"\ndescript text:\n"+descriptText+"\ninner link:\n"+innerLink;
 	}	
 }

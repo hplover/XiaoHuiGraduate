@@ -1,18 +1,24 @@
 package baikeClaw;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
+/*
+ * get all the basicInfo if the status means the search word is polysemy by concurrent threads
+ * and write to MongoDB
+ */
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 public class Parse {
+	ExecutorService executorService = Executors.newCachedThreadPool();
+	
 	private Claw claw;
 	private Document htmlPage;
 	private int status;
@@ -41,18 +47,40 @@ public class Parse {
 		default:
 			break;
 		}	
+		writeToMongDB(basicInfo);
+		writeToMongoDB(concurrent);
 	}	
 	
+	private void writeToMongoDB(List<Basic> concurrent2) {
+		// TODO Auto-generated method stub
+		if(concurrent2==null&&concurrent2.size()==0){
+			return ;
+		}
+		for(Basic basic:concurrent2){
+			writeToMongDB(basic);
+		}
+	}
+
+	private void writeToMongDB(Basic basicInfo2) {
+		// TODO Auto-generated method stub
+		if(basicInfo2==null){
+			return ;
+		}
+		new MongoDBOP().updateMongoDB(basicInfo2);
+	}
+
 	private void generateList(Document htmlPage2) {
 		ConList conList=new ConList(htmlPage2);
 		HashMap<String, String> word2URL=conList.getWordURL();
-		Basic basicInfoList;
 		for(Entry<String, String> list:word2URL.entrySet()){
-			basicInfoList=new Basic(new Claw(list.getValue()).getHtmlPage());
-			concurrent.add(basicInfoList);
+			executorService.execute(new conCurrentClaw(concurrent, list.getValue()));
 		}
-
-		System.out.println(concurrent);
+		executorService.shutdown();
+		try {
+            executorService.awaitTermination(1, TimeUnit.DAYS);
+        } catch (InterruptedException ex) {
+            System.out.println(ex.getMessage());
+        }
 	}
 
 	private void generatePoly(Document htmlPage2) {
@@ -60,17 +88,19 @@ public class Parse {
 		concurrent.add(defaultBasicInfo);
 		ConPoly conPoly=new ConPoly(htmlPage2);
 		HashMap<String, String> word2URL=conPoly.getWordURL();
-		Basic otherBasicInfo;
 		for(Entry<String,String> list:word2URL.entrySet()){
-			otherBasicInfo=new Basic(new Claw(list.getValue()).getHtmlPage());
-			concurrent.add(otherBasicInfo);
+			executorService.execute(new conCurrentClaw(concurrent, list.getValue()));
 		}
-		System.out.println(concurrent);
+		executorService.shutdown();
+		try {
+            executorService.awaitTermination(1, TimeUnit.DAYS);
+        } catch (InterruptedException ex) {
+            System.out.println(ex.getMessage());
+        }
 	}
 	
 	private void generateBasicInfo(Document htmlPage2) {
 		basicInfo=new Basic(htmlPage2);
-		System.out.println(basicInfo);
 	}
 
 	public int getStatus(){
@@ -87,7 +117,7 @@ public class Parse {
 	
 	public static void main(String[] args){
 		Parse test=new Parse("苹果");
-//		System.out.println(test);
+		System.out.println(test);
 	}
 }
 
@@ -125,5 +155,26 @@ class ConPoly{
 	}
 	public HashMap<String, String> getWordURL(){
 		return word2URL;
+	}
+}
+
+
+class conCurrentClaw implements Runnable {
+	Document htmlPage;
+	String url;
+	Basic tempBasic;
+	List<Basic> result=new ArrayList<>();
+	public conCurrentClaw(List<Basic> concurrent, String value) {
+				url=value;
+		result=concurrent;
+	}
+
+	@Override
+	public void run() {
+		htmlPage=new Claw(url).getHtmlPage();
+		tempBasic=new Basic(htmlPage);
+		synchronized (result) {
+			result.add(tempBasic);
+		}
 	}
 }
