@@ -1,19 +1,17 @@
 package utilizeCorpus;
 
 import java.util.*;
-
 import baikeClaw.Basic;
-import baikeClaw.Parse;
-import tools.PolyFW;
+import baikeClaw.ProcessItem;
 import tools.TFIDF;
 
 public class FeatureWords {
-	private Parse returnPage;
+	private ProcessItem returnPage;
 	private int status;
 	private List<String> basicFeatureWords=new ArrayList<>();
-	private List<PolyFW> polyFeaturenWords=new ArrayList<>();
+	private List<ReturnExtend> polyFeaturenWords=new ArrayList<>();
 	public FeatureWords(String searchWord) {
-		returnPage=new Parse(searchWord);
+		returnPage=new ProcessItem(searchWord);
 		status=returnPage.getStatus();
 		switch (status) {
 		case -1:
@@ -27,14 +25,13 @@ public class FeatureWords {
 		case 3:
 		case 4:
 			List<Basic> conList = returnPage.getConcurrent();
-			polyFeaturenWords=new TFIDF(conList).getpolyFW();
+			polyFeaturenWords=new TFIDF(conList).gettfidfFW();
 			break;
 		default:
 			break;
 		}
 	}
-	
-	public List<PolyFW> getPolyFeaturenWords() {
+	public List<ReturnExtend> getPolyFeaturenWords() {
 		return polyFeaturenWords;
 	}
 	public List<String> getBasicFeatureWords() {
@@ -42,7 +39,7 @@ public class FeatureWords {
 	}
 	
 	public static void main(String[] args){
-		FeatureWords test=new FeatureWords("苹果");
+		FeatureWords test=new FeatureWords("苹果公司");
 		System.out.println(test.getPolyFeaturenWords());
 	}
 	

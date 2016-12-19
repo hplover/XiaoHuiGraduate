@@ -1,7 +1,7 @@
 package tools;
+
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -12,30 +12,6 @@ public class SortMapByValue
 {
     public static boolean ASC = true;
     public static boolean DESC = false;
-
-    public static void main(String[] args)
-    {
-
-        // Creating dummy unsorted map
-        Map<String, Double> unsortMap = new HashMap<String, Double>();
-        unsortMap.put("B", 55.0);
-        unsortMap.put("A", 80.0);
-        unsortMap.put("D", 20.0);
-        unsortMap.put("C", 70.0);
-
-        System.out.println("Before sorting......");
-        printMap(unsortMap);
-
-        System.out.println("After sorting ascending order......");
-        Map<String, Double> sortedMapAsc = sortByComparator(unsortMap, ASC);
-        printMap(sortedMapAsc);
-
-
-        System.out.println("After sorting descindeng order......");
-        Map<String, Double> sortedMapDesc = sortByComparator(unsortMap, DESC);
-        printMap(sortedMapDesc);
-
-    }
 
     public static Map<String, Double> sortByComparator(Map<String, Double> unsortMap, final boolean order)
     {

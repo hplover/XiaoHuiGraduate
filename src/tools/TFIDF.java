@@ -11,42 +11,48 @@ import com.hankcs.hanlp.HanLP;
 import com.hankcs.hanlp.seg.Segment;
 import com.hankcs.hanlp.seg.common.Term;
 import baikeClaw.Basic;
+import utilizeCorpus.ReturnExtend;
 
 public class TFIDF {
 	List<Basic> polyList=new ArrayList<>();
-	List<PolyFW> polyFeatureWords=new ArrayList<>();
+	List<ReturnExtend> tfidfFW=new ArrayList<>();
 	public TFIDF() {
 		
 	}
 
 	public TFIDF(List<Basic> conList) {
+		ReturnExtend tempFw;
 		if(conList!=null&&conList.size()>0){
 			for(Basic article:conList){
-				polyFeatureWords.add(new PolyFW(article.getTitle(), segWords(article.getDescriptText())));
+				tempFw=new ReturnExtend();
+				tempFw.setTitle(article.getTitle());
+				tempFw.setTfidfWords(segWords(article.getDescriptText()));
+				tfidfFW.add(tempFw);
 			}
-		}
-		int idf=0,size=polyFeatureWords.size();
-		Map<String, Double> featrueWordTemp=new HashMap<>();
-		for(int i=0;i<size;i++){
-			featrueWordTemp=polyFeatureWords.get(i).getFeatrueWords();
-			for(Entry<String, Double> word:featrueWordTemp.entrySet()){
-				for(int k=0;k<size;k++){
-					if(i!=k){
-						if(polyFeatureWords.get(k).getFeatrueWords().containsKey(word.getKey())){
-							idf++;
+			int idf=0,size=tfidfFW.size();
+			Map<String, Double> featrueWordTemp=new HashMap<>();
+			for(int i=0;i<size;i++){
+				featrueWordTemp=tfidfFW.get(i).getTfidfWords();
+				for(Entry<String, Double> word:featrueWordTemp.entrySet()){
+					for(int k=0;k<size;k++){
+						if(i!=k){
+							if(tfidfFW.get(k).getTfidfWords().containsKey(word.getKey())){
+								idf++;
+							}
 						}
 					}
+					featrueWordTemp.put(word.getKey(), word.getValue()*Math.log(size/(idf+1)));
+					idf=0;
 				}
-				featrueWordTemp.put(word.getKey(), word.getValue()*Math.log(size/(idf+1)));
-				idf=0;
+				featrueWordTemp=SortMapByValue.sortByComparator(featrueWordTemp, false);
+				tfidfFW.get(i).setTfidfWords(featrueWordTemp);
 			}
-			featrueWordTemp=SortMapByValue.sortByComparator(featrueWordTemp, false);
-			polyFeatureWords.get(i).setFeatrueWords(featrueWordTemp);
 		}
+		
 	}
 
-	public List<PolyFW> getpolyFW() {
-		return polyFeatureWords;
+	public List<ReturnExtend> gettfidfFW() {
+		return tfidfFW;
 	}
 	
 	private HashMap<String, Double> segWords(String text){
@@ -72,7 +78,7 @@ public class TFIDF {
 		for(Entry<String, Double> word:segWords.entrySet()){
 			segWords.put(word.getKey(), word.getValue()/wordCount);
 		}
-//		System.out.println(segWords);
 		return segWords;
 	}	
 }
+

@@ -13,14 +13,17 @@ import org.jsoup.select.Elements;
  * extract info from a basicInfo page
  */
 public class Basic{
-	List<String> labels=new ArrayList<>();
-	int editCount;
-	Date lastEdit;
-	String title;
-	HashMap<String, String> innerLink=new HashMap<>();
-	String descriptText;
-	HashMap<String, String> referMaterial=new HashMap<>();
+	private List<String> labels=new ArrayList<>();
+	private int editCount;
+	private Date lastEdit;
+	private String title;
+	private HashMap<String, String> innerLink=new HashMap<>();
+	private String descriptText;
+	private HashMap<String, String> referMaterial=new HashMap<>();
 	
+	public Basic(){
+		
+	}
 	public Basic(Document htmlpage){
 		setTitle(htmlpage);
 		setLabels(htmlpage);
@@ -40,6 +43,34 @@ public class Basic{
 		for(int i=0;i<labelSelect.size();i++){
 			labels.add(labelSelect.get(i).text());
 		}
+	}
+
+	public void setLabels(List<String> labels) {
+		this.labels = labels;
+	}
+
+	public void setEditCount(int editCount) {
+		this.editCount = editCount;
+	}
+
+	public void setLastEdit(Date lastEdit) {
+		this.lastEdit = lastEdit;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
+	}
+
+	public void setInnerLink(HashMap<String, String> innerLink) {
+		this.innerLink = innerLink;
+	}
+
+	public void setDescriptText(String descriptText) {
+		this.descriptText = descriptText;
+	}
+
+	public void setReferMaterial(HashMap<String, String> referMaterial) {
+		this.referMaterial = referMaterial;
 	}
 
 	public int getEditCount() {
@@ -64,7 +95,7 @@ public class Basic{
 
 	public void setLastEdit(Document htmlpage) {
 		SimpleDateFormat dateFormat=new SimpleDateFormat("yyyy-mm-dd");
-		Element lastEditSelect=htmlpage.select("span[class=j-modified-time]").first();
+		Element lastEditSelect=htmlpage.select(HTMLCode.elementLastEdit).first();
 		try {
 			lastEdit=dateFormat.parse(lastEditSelect.text());
 		} catch (ParseException e) {
@@ -81,7 +112,7 @@ public class Basic{
 		String link,name;
 		for(int i=0;i<innerLinkSelect.size();i++){
 			link=innerLinkSelect.get(i).attr("href");
-			if(link.matches("^/view/.*htm")){
+			if(link!=null&&(link.matches("^/view/.*htm")||link.contains("/item"))){
 				name=innerLinkSelect.get(i).text();
 				link=Claw.BASEBAIKEURL+link;
 				innerLink.put(name, link);
@@ -106,14 +137,16 @@ public class Basic{
 	}
 
 	private void setReferMaterial(Document htmlpage) {
-		Elements referMaterialSelect=htmlpage.select("li[class=reference-item ]");
+		Elements referMaterialSelect=htmlpage.select(HTMLCode.elementReferMaterial);
 		Element material;
 		for(int i=0;i<referMaterialSelect.size();i++){
-			material=referMaterialSelect.get(i).select("a[class=text").first();
+			material=referMaterialSelect.get(i).select("a[class=text]").first();
 			String name, link;
-			name=material.text();
-			link=material.attr("href");
-			referMaterial.put(name, link);
+			if(material!=null){
+				name=material.text();
+				link=material.attr("href");
+				referMaterial.put(name, link);
+			}
 		}
 	}
 	
@@ -128,6 +161,11 @@ public class Basic{
 
 	@Override
 	public String toString(){
-		return "title:\n"+title+"\nlabels:\n"+labels+"\nedit Count:\n"+editCount+"\nlast date:\n"+lastEdit+"\nrefer material:\n"+referMaterial+"\ndescript text:\n"+descriptText+"\ninner link:\n"+innerLink;
+		return "title:"+title+"\nlabels:"+labels+"\nedit Count:"+editCount+"\nlast date:"+lastEdit+"\nrefer material:"+referMaterial+"\ndescript text:"+descriptText+"\ninner link:"+innerLink;
+	}
+
+	public Object getFeatureWords() {
+		// TODO Auto-generated method stub
+		return null;
 	}	
 }

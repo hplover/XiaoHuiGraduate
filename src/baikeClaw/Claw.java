@@ -73,8 +73,8 @@ public class Claw {
 		status = clawStatus();
 		
 		//write to file
-		if(status>0)
-			writeHtml();
+//		if(status>0)
+//			writeHtml();
 	}
 	
 	private boolean isURL(String searchString){
@@ -105,17 +105,17 @@ public class Claw {
 			return -1;
 		}
 		String webpage=htmlPage.toString();
-		if(webpage.contains(Status.notExist1)||webpage.contains(Status.notExist2)){
+		if(webpage.contains(HTMLCode.notExist1)||webpage.contains(HTMLCode.notExist2)){
 			return 0;
 		}
-		if(webpage.contains(Status.existBody)){
-			if(webpage.contains(Status.poly)){
+		if(webpage.contains(HTMLCode.existBody)){
+			if(webpage.contains(HTMLCode.poly)){
 				return 3;
 			}
-			if(webpage.contains(Status.synonym)){
+			if(webpage.contains(HTMLCode.synonym)){
 				return 2;
 			}
-			if(webpage.contains(Status.list)){
+			if(webpage.contains(HTMLCode.list)){
 				return 4;
 			}
 			return 1;
@@ -202,13 +202,16 @@ public class Claw {
 	}
 }
 
-class Status{
+class HTMLCode{
 	public static String notExist1="百度百科尚未收录词条";
 	public static String notExist2="<p class=\"sorryCont\"><span class=\"sorryTxt\">";
 	public static String existBody="<div class=\"main-content\">";
-	public static String poly="<ul class=\"polysemantList-wrapper cmn-clearfix\">";
+	public static String poly="<ul class=\"polysemantList-wrapper cmn-clearfix\"";//可能有隐藏的义项，所以去掉'>'
 	public static String synonym="<span class=\"view-tip-panel\">";
 	public static String list="<ul class=\"custom_dot  para-list list-paddingleft-1\">";
-//	public static String 
+	public static String elementList="ul[class=custom_dot  para-list list-paddingleft-1]";
+	public static String elementPoly="div.polysemant-list >ul>li>a";
+	public static String elementLastEdit="span[class=j-modified-time]";
+	public static String elementReferMaterial="li[class=reference-item ]";
 }
 
