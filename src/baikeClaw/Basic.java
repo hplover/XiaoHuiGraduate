@@ -30,7 +30,7 @@ public class Basic{
 		setEditCount(htmlpage);
 		setInnerLink(htmlpage);
 		setDescriptText(htmlpage);
-		setReferMaterial(htmlpage);
+//		setReferMaterial(htmlpage);
 		setLastEdit(htmlpage);
 	}
 
@@ -40,6 +40,7 @@ public class Basic{
 
 	private void setLabels(Document htmlpage) {
 		Elements labelSelect=htmlpage.select("span[class=taglist]");
+		if(labelSelect!=null)
 		for(int i=0;i<labelSelect.size();i++){
 			labels.add(labelSelect.get(i).text());
 		}
@@ -80,6 +81,7 @@ public class Basic{
 	private void setEditCount(Document htmlpage) {
 		Elements editCountSelect=htmlpage.select("dd.description > ul > li");
 		String textInList;
+		if(editCountSelect!=null)
 		for(int i=0;i<editCountSelect.size();i++){
 			textInList=editCountSelect.get(i).text();
 			if(textInList.startsWith("编辑次数")){
@@ -97,7 +99,8 @@ public class Basic{
 		SimpleDateFormat dateFormat=new SimpleDateFormat("yyyy-mm-dd");
 		Element lastEditSelect=htmlpage.select(HTMLCode.elementLastEdit).first();
 		try {
-			lastEdit=dateFormat.parse(lastEditSelect.text());
+			if(lastEditSelect!=null)
+				lastEdit=dateFormat.parse(lastEditSelect.text());
 		} catch (ParseException e) {
 			System.out.println("fetch last edit time failed");
 		}
@@ -115,6 +118,10 @@ public class Basic{
 			if(link!=null&&(link.matches("^/view/.*htm")||link.contains("/item"))){
 				name=innerLinkSelect.get(i).text();
 				link=Claw.BASEBAIKEURL+link;
+				name=name.replaceAll("\\.", "");//保证key正确
+				if(name.startsWith("$")){
+					name=name.replaceAll("\\$", "");
+				}
 				innerLink.put(name, link);
 			}
 		}
@@ -136,19 +143,19 @@ public class Basic{
 		return referMaterial;
 	}
 
-	private void setReferMaterial(Document htmlpage) {
-		Elements referMaterialSelect=htmlpage.select(HTMLCode.elementReferMaterial);
-		Element material;
-		for(int i=0;i<referMaterialSelect.size();i++){
-			material=referMaterialSelect.get(i).select("a[class=text]").first();
-			String name, link;
-			if(material!=null){
-				name=material.text();
-				link=material.attr("href");
-				referMaterial.put(name, link);
-			}
-		}
-	}
+//	private void setReferMaterial(Document htmlpage) {
+//		Elements referMaterialSelect=htmlpage.select(HTMLCode.elementReferMaterial);
+//		Element material;
+//		for(int i=0;i<referMaterialSelect.size();i++){
+//			material=referMaterialSelect.get(i).select("a[class=text]").first();
+//			String name, link;
+//			if(material!=null){
+//				name=material.text();
+//				link=material.attr("href");
+//				referMaterial.put(name, link);
+//			}
+//		}
+//	}
 	
 	public String getTitle() {
 		return title;
@@ -161,7 +168,7 @@ public class Basic{
 
 	@Override
 	public String toString(){
-		return "title:"+title+"\nlabels:"+labels+"\nedit Count:"+editCount+"\nlast date:"+lastEdit+"\nrefer material:"+referMaterial+"\ndescript text:"+descriptText+"\ninner link:"+innerLink;
+		return "\ntitle:"+title+"\nlabels:"+labels+"\nedit Count:"+editCount+"\nlast date:"+lastEdit+"\nrefer material:"+referMaterial+"\ndescript text:"+descriptText+"\ninner link:"+innerLink;
 	}
 
 	public Object getFeatureWords() {

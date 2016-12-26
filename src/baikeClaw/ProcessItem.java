@@ -21,39 +21,56 @@ public class ProcessItem {
 	private Basic basicInfo;
 	private List<Basic> concurrent=new ArrayList<>();
 	public ProcessItem(String searchWord){
-		if(DataBaseOP.inBasicCellection(searchWord)){
-			basicInfo=DataBaseOP.getBasicCellection(searchWord);
+		List<String> searchResult=DataBaseOP.getIndex(searchWord);
+		switch (searchResult.size()) {
+		case 0:
+			onlineSearch(searchWord);
+			break;
+		case 1:
+			basicInfo=DataBaseOP.getBasic(searchResult.get(0));
 			status=1;
+			break;
+		default:
+			concurrent=DataBaseOP.getPoly(searchResult);
+			status=3;
+			break;
 		}
-		else{
-			claw=new Claw(searchWord);
-			htmlPage=claw.getHtmlPage();
-			status=claw.getStatus();
-			System.out.println("status"+status);
-			switch (status) {
-			case -1:
-			case 0:
-				System.out.printf("failed to get %s",searchWord);
-				break;
-			case 1:
-			case 2:
-				generateBasicInfo(htmlPage);
-				DataBaseOP.addBasic(basicInfo);
-				break;
-			case 3:
-				generatePoly(htmlPage);
-				DataBaseOP.addePoly(concurrent);
-				break;
-			case 4:
-				generateList(htmlPage);
-				DataBaseOP.addePoly(concurrent);
-				break;
-			default:
-				break;
+	}
+	
+	private void onlineSearch(String searchWord){
+		claw=new Claw(searchWord);
+		htmlPage=claw.getHtmlPage();
+		status=claw.getStatus();
+//		System.out.println("status"+status);
+		switch (status) {
+		case -1:
+		case 0:
+			System.out.printf("failed to get %s",searchWord);
+			break;
+		case 1:
+		case 2:
+			generateBasicInfo(htmlPage);
+			DataBaseOP.addBasic(basicInfo);
+			DataBaseOP.addIndex(searchWord,basicInfo.getTitle());
+			break;
+		case 3:
+			generatePoly(htmlPage);
+			DataBaseOP.addPoly(concurrent);
+			for(Basic basic:concurrent){
+				DataBaseOP.addIndex(searchWord, basic.getTitle());
 			}
+			break;
+		case 4:
+			generateList(htmlPage);
+			DataBaseOP.addPoly(concurrent);
+			for(Basic basic:concurrent){
+				DataBaseOP.addIndex(searchWord, basic.getTitle());
+			}
+			break;
+		default:
+			break;
 		}
-		
-	}	
+	}
 	
 	public String toString(){
 		if(status==1||status==2){
@@ -100,7 +117,25 @@ public class ProcessItem {
 	}
 	
 	public static void main(String[] args){
-		ProcessItem test=new ProcessItem("张杰");
+//		try(BufferedReader br = new BufferedReader(new FileReader("file.txt"))) {
+//		    StringBuilder sb = new StringBuilder();
+//		    String line = br.readLine();
+//
+//		    while (line != null) {
+//		        sb.append(line);
+//		        sb.append(System.lineSeparator());
+//		        line = br.readLine();
+//		    }
+//		    String search = sb.toString();
+//		    System.out.println(new ProcessItem(search));
+//		} catch (FileNotFoundException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+		ProcessItem test=new ProcessItem("国奥");
 		System.out.println(test);
 	}
 }

@@ -14,7 +14,7 @@ import baikeClaw.Basic;
 import baikeClaw.Claw;
 
 public class ParallelClaw{
-	private static ExecutorService executorService = Executors.newCachedThreadPool();
+	private static ExecutorService executorService = Executors.newFixedThreadPool(10);
 	
 	public static List<Basic> getReturnBasic(List<Basic> basics, Map<String, String> urls) {
 		for(Entry<String, String> url:urls.entrySet()){

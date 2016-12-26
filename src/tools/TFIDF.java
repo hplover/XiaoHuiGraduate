@@ -11,47 +11,49 @@ import com.hankcs.hanlp.HanLP;
 import com.hankcs.hanlp.seg.Segment;
 import com.hankcs.hanlp.seg.common.Term;
 import baikeClaw.Basic;
-import utilizeCorpus.ReturnExtend;
 
 public class TFIDF {
 	List<Basic> polyList=new ArrayList<>();
-	List<ReturnExtend> tfidfFW=new ArrayList<>();
+	Map<String,Map<String, Double>> tfidfFW=new HashMap<>();
 	public TFIDF() {
 		
 	}
 
 	public TFIDF(List<Basic> conList) {
-		ReturnExtend tempFw;
 		if(conList!=null&&conList.size()>0){
 			for(Basic article:conList){
-				tempFw=new ReturnExtend();
-				tempFw.setTitle(article.getTitle());
-				tempFw.setTfidfWords(segWords(article.getDescriptText()));
-				tfidfFW.add(tempFw);
+//				if(tfidfFW.containsKey(article.getTitle())){
+//					continue;
+//				}
+				tfidfFW.put(article.getTitle(), segWords(article.getDescriptText()));
 			}
-			int idf=0,size=tfidfFW.size();
 			Map<String, Double> featrueWordTemp=new HashMap<>();
-			for(int i=0;i<size;i++){
-				featrueWordTemp=tfidfFW.get(i).getTfidfWords();
+			String title;
+			Double idf=0.0;
+			for(Entry<String, Map<String, Double>> article:tfidfFW.entrySet()){
+				featrueWordTemp=article.getValue();
+				title=article.getKey();
 				for(Entry<String, Double> word:featrueWordTemp.entrySet()){
-					for(int k=0;k<size;k++){
-						if(i!=k){
-							if(tfidfFW.get(k).getTfidfWords().containsKey(word.getKey())){
+					for(Entry<String, Map<String, Double>> bticle:tfidfFW.entrySet()){
+						if(title!=bticle.getKey()){
+							if(bticle.getValue().containsKey(word.getValue())){
 								idf++;
 							}
 						}
 					}
-					featrueWordTemp.put(word.getKey(), word.getValue()*Math.log(size/(idf+1)));
-					idf=0;
+					featrueWordTemp.put(word.getKey(), word.getValue()*Math.log((tfidfFW.size()/(idf+1))));
+					idf=0.0;
 				}
 				featrueWordTemp=SortMapByValue.sortByComparator(featrueWordTemp, false);
-				tfidfFW.get(i).setTfidfWords(featrueWordTemp);
+//				tfidfFW.remove(article.getKey());
+				tfidfFW.put(article.getKey(), featrueWordTemp);
+				
 			}
 		}
 		
 	}
 
-	public List<ReturnExtend> gettfidfFW() {
+	public Map<String, Map<String, Double>> gettfidfFW() {
 		return tfidfFW;
 	}
 	
@@ -63,14 +65,20 @@ public class TFIDF {
 		List<Term> rawSegWords=segment.seg(text);
 		HashMap<String,Double> segWords=new HashMap<>();
 		int wordCount=0;
+		String wordName;
 		for(Term term:rawSegWords){
 			if(term.nature.startsWith('n')&&!term.nature.toString().equals("nz")&&term.word.length()>1){
 				wordCount++;
-				if(!segWords.containsKey(term.word)){
-					segWords.put(term.word, (double) 1);
+				wordName=term.word;
+				wordName=wordName.replaceAll("\\.", "");
+				if(wordName.startsWith("$")){
+					wordName=wordName.replaceAll("\\$", "");
+				}
+				if(!segWords.containsKey(wordName)){
+					segWords.put(wordName, (double) 1);
 				}
 				else{
-					segWords.put(term.word, segWords.get(term.word)+1);
+					segWords.put(wordName, segWords.get(wordName)+1);
 				}
 			}
 				
