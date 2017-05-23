@@ -143,19 +143,6 @@ public class Basic{
 		return referMaterial;
 	}
 
-//	private void setReferMaterial(Document htmlpage) {
-//		Elements referMaterialSelect=htmlpage.select(HTMLCode.elementReferMaterial);
-//		Element material;
-//		for(int i=0;i<referMaterialSelect.size();i++){
-//			material=referMaterialSelect.get(i).select("a[class=text]").first();
-//			String name, link;
-//			if(material!=null){
-//				name=material.text();
-//				link=material.attr("href");
-//				referMaterial.put(name, link);
-//			}
-//		}
-//	}
 	
 	public String getTitle() {
 		return title;
